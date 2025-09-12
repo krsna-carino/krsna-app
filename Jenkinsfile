@@ -77,24 +77,23 @@ pipeline {
         }
 
         stage("Deploy to Tomcat") {
-    steps {
-        withCredentials([usernamePassword(credentialsId: 'tomcat_credentials', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
-            script {
-                // WAR file built by Maven
-                def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'tomcat_credentials', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
+                    script {
+                        // WAR file built by Maven
+                        def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
 
-                echo "Deploying ${warFile} to Tomcat at context path /shiva-app ..."
+                        echo "Deploying ${warFile} to Tomcat at context path /sunil-app ..."
 
-                sh """
-                    curl -u $TOMCAT_USER:$TOMCAT_PASS \
-                         -T ${warFile} \
-                         "http://3.89.121.33:8080/manager/text/deploy?path=/shiva-app&update=true"
-                """
+                        sh """
+                            curl -u $TOMCAT_USER:$TOMCAT_PASS \
+                                 -T ${warFile} \
+                                 "http://3.89.121.33:8080/manager/text/deploy?path=/sunil-app&update=true"
+                        """
+                    }
+                }
             }
         }
-    }
-}
-
 
         stage("Slack Notification") {
             steps {
