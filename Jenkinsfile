@@ -100,7 +100,7 @@ pipeline {
                 slackSend(
                     channel: "${SLACK_CHANNEL}",
                     color: "#36a64f",
-                    message: "✅ Jenkins Declarative Pipeline for *Sunil App* deployed successfully to Tomcat! Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
+                    message: "✅ Jenkins Declarative Pipeline for deployed successfully to Tomcat! Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
                 )
             }
         }
