@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome | Sunil App</title>
+    <title>Welcome | Shiva App</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -55,7 +55,7 @@
 </head>
 <body>
     <header>
-        <h1>🚀 Welcome to Sunil App</h1>
+        <h1>🚀 Welcome to Shiva App</h1>
         <p>Your CI/CD Pipeline Deployment is Successful ✅</p>
     </header>
 
