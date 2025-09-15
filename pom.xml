@@ -5,12 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.sunil</groupId>
-    <artifactId>sunil-app</artifactId>
+    <groupId>com.shiva</groupId>
+    <artifactId>shiva-app</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>Sunil App</name>
+    <name>shiva App</name>
     <description>A simple web application for Jenkins CI/CD demo</description>
 
     <properties>
@@ -37,7 +37,7 @@
     </dependencies>
 
     <build>
-        <finalName>sunil-app</finalName> <!-- WAR file name will be sunil-app.war -->
+        <finalName>shiva-app</finalName> <!-- WAR file name will be shiva-app.war -->
         <plugins>
             <!-- Compiler Plugin -->
             <plugin>
