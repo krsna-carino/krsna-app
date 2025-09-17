@@ -6,7 +6,7 @@ pipeline {
     environment {
         SLACK_CHANNEL = "#jenkins-integration"
         NEXUS_URL = "54.237.142.141:8081"
-        NEXUS_REPOSITORY = "multi-stage-job"
+        NEXUS_REPOSITORY = "pipeline-stage-job"
         NEXUS_CREDENTIAL_ID = "nexus-credits"
     }
 
