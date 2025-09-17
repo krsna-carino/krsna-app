@@ -30,20 +30,21 @@ pipeline {
             }
         }
 
-        stage("SonarQube Analysis") {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh '''
-                        sonar-scanner \
-                        -Dsonar.projectKey=krsna-app \
-                        -Dsonar.projectName="krsna-app" \
-                        -Dsonar.projectVersion=1.0 \
-                        -Dsonar.sources=src/main/java \
-                        -Dsonar.java.binaries=target/classes
-                    '''
-                }
-            }
+stage("SonarQube Analysis") {
+    steps {
+        withSonarQubeEnv('SonarQube') {
+            sh '''
+                /opt/sonar_scanner/bin/sonar-scanner \
+                -Dsonar.projectKey=krsna-app \
+                -Dsonar.projectName="krsna-app" \
+                -Dsonar.projectVersion=1.0 \
+                -Dsonar.sources=src/main/java \
+                -Dsonar.java.binaries=target/classes
+            '''
         }
+    }
+}
+
 
         stage("Publish to Nexus") {
             steps {
