@@ -7,14 +7,11 @@ pipeline {
 
     environment {
         // Nexus details
-        NEXUS_VERSION     = "nexus3"
-        NEXUS_PROTOCOL    = "http"
-        NEXUS_URL         = "54.237.142.141:8081"
-        NEXUS_REPOSITORY  = "krsna-declarative"
+        NEXUS_VERSION       = "nexus3"
+        NEXUS_PROTOCOL      = "http"
+        NEXUS_URL           = "54.237.142.141:8081"
+        NEXUS_REPOSITORY    = "krsna-declarative"
         NEXUS_CREDENTIAL_ID = "nexus-credits"
-
-        // SonarQube scanner tool
-        SCANNER_HOME = tool 'sonar_scanner'
 
         // Slack details
         SLACK_CHANNEL = "#jenkins-integration"
@@ -36,12 +33,14 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''$SCANNER_HOME/bin/sonar-scanner \
+                    sh '''
+                        sonar-scanner \
                         -Dsonar.projectKey=krsna-app \
                         -Dsonar.projectName="krsna-app" \
                         -Dsonar.projectVersion=1.0 \
                         -Dsonar.sources=src/main/java \
-                        -Dsonar.java.binaries=target/classes '''
+                        -Dsonar.java.binaries=target/classes
+                    '''
                 }
             }
         }
@@ -51,11 +50,9 @@ pipeline {
                 script {
                     pom = readMavenPom file: "pom.xml"
                     filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-                    echo "${filesByGlob[0].name} ${filesByGlob[0].path}"
                     artifactPath = filesByGlob[0].path
-                    artifactExists = fileExists artifactPath
 
-                    if (artifactExists) {
+                    if (fileExists artifactPath) {
                         nexusArtifactUploader(
                             nexusVersion: NEXUS_VERSION,
                             protocol: NEXUS_PROTOCOL,
@@ -70,7 +67,7 @@ pipeline {
                             ]
                         )
                     } else {
-                        error "*** File: ${artifactPath}, could not be found"
+                        error "*** File not found: ${artifactPath}"
                     }
                 }
             }
@@ -80,10 +77,8 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'tomcat-credits', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
                     script {
-                        // WAR file built by Maven
                         def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
-
-                        echo "Deploying ${warFile} to Tomcat at context path /sunil-app ..."
+                        echo "Deploying ${warFile} to Tomcat at context path /krsna-app ..."
 
                         sh """
                             curl -u $TOMCAT_USER:$TOMCAT_PASS \
@@ -100,7 +95,7 @@ pipeline {
                 slackSend(
                     channel: "${SLACK_CHANNEL}",
                     color: "#36a64f",
-                    message: "✅ Jenkins Declarative Pipeline for deployed successfully to Tomcat! Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
+                    message: "✅ Jenkins Declarative Pipeline deployed successfully to Tomcat! Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
                 )
             }
         }
