@@ -88,7 +88,7 @@ pipeline {
                         sh """
                             curl -u $TOMCAT_USER:$TOMCAT_PASS \
                                  -T ${warFile} \
-                                 "http://54.91.10.42:8080/manager/text/deploy?path=/shiva-app&update=true"
+                                 "http://54.145.50.157:8080/manager/text/deploy?path=/krsna-app&update=true"
                         """
                     }
                 }
