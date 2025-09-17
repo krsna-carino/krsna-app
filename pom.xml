@@ -5,12 +5,12 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.shiva</groupId>
-    <artifactId>shiva-app</artifactId>
+    <groupId>com.krsna</groupId>
+    <artifactId>krsna-app</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
-    <name>shiva App</name>
+    <name>krsna App</name>
     <description>A simple web application for Jenkins CI/CD demo</description>
 
     <properties>
@@ -37,7 +37,7 @@
     </dependencies>
 
     <build>
-        <finalName>shiva-app</finalName> <!-- WAR file name will be shiva-app.war -->
+        <finalName>krsna-app</finalName> <!-- WAR file name will be krsna-app.war -->
         <plugins>
             <!-- Compiler Plugin -->
             <plugin>
@@ -65,7 +65,7 @@
     <distributionManagement>
         <repository>
             <id>Nexus-server</id>
-            <url>http://3.92.191.162:8081/repository/shiva-app/</url>
+            <url>http://54.237.142.141:8081/repository/krsna-declarative/</url>
         </repository>
     </distributionManagement>
 
