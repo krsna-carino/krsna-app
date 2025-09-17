@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome | Shiva App</title>
+    <title>Welcome | Krsna App</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
@@ -55,7 +55,7 @@
 </head>
 <body>
     <header>
-        <h1>🚀 Welcome to Shiva App</h1>
+        <h1>🚀 Welcome to Krsna App</h1>
         <p>Your CI/CD Pipeline Deployment is Successful ✅</p>
     </header>
 
@@ -66,7 +66,7 @@
     </div>
 
     <footer>
-        &copy; <%= new java.util.Date().getYear() + 1900 %> Sunil App. All Rights Reserved.
+        &copy; <%= new java.util.Date().getYear() + 1900 %> Krsna App. All Rights Reserved.
     </footer>
 </body>
 </html>
