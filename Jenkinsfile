@@ -10,7 +10,7 @@ pipeline {
         NEXUS_VERSION       = "nexus3"
         NEXUS_PROTOCOL      = "http"
         NEXUS_URL           = "54.237.142.141:8081"
-        NEXUS_REPOSITORY    = "krsna-declarative"
+        NEXUS_REPOSITORY    = "multi-stage-job"
         NEXUS_CREDENTIAL_ID = "nexus-credits"
 
         // Slack details
