@@ -1,105 +1,90 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'MVN_HOME'
-    }
+    tools { maven 'MVN_HOME' }
 
     environment {
-        // Nexus details
-        NEXUS_VERSION       = "nexus3"
-        NEXUS_PROTOCOL      = "http"
-        NEXUS_URL           = "54.237.142.141:8081"
-        NEXUS_REPOSITORY    = "multi-stage-job"
-        NEXUS_CREDENTIAL_ID = "nexus-credits"
-
-        // Slack details
         SLACK_CHANNEL = "#jenkins-integration"
+        NEXUS_URL = "54.237.142.141:8081"
+        NEXUS_REPOSITORY = "multi-stage-job"
+        NEXUS_CREDENTIAL_ID = "nexus-credits"
     }
 
     stages {
-        stage("Clone Code") {
+        stage('Checkout SCM') {
             steps {
                 git branch: 'main', url: 'https://github.com/krsna-carino/krsna-app.git'
             }
         }
 
-        stage("Maven Build") {
+        stage('Tool Install') {
             steps {
-                sh 'mvn -Dmaven.test.failure.ignore=true clean install'
+                echo "Use a predefined Maven installation"
             }
         }
 
-stage("SonarQube Analysis") {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh '''
-                /opt/sonar_scanner/bin/sonar-scanner \
-                -Dsonar.projectKey=krsna-app \
-                -Dsonar.projectName="krsna-app" \
-                -Dsonar.projectVersion=1.0 \
-                -Dsonar.sources=src/main/java \
-                -Dsonar.java.binaries=target/classes
-            '''
+        stage('Build & Quality') {
+            parallel {
+                stage('Maven Build') {
+                    steps {
+                        sh 'mvn clean install -Dmaven.test.failure.ignore=true'
+                    }
+                }
+                stage('SonarQube Analysis') {
+                    steps {
+                        withSonarQubeEnv('SonarQube') {
+                            sh '/opt/sonar_scanner/bin/sonar-scanner -Dsonar.projectKey=krsna-app -Dsonar.sources=src/main/java -Dsonar.java.binaries=target/classes'
+                        }
+                    }
+                }
+            }
         }
-    }
-}
 
-
-        stage("Publish to Nexus") {
+        stage('Artifact Management') {
             steps {
                 script {
-                    pom = readMavenPom file: "pom.xml"
-                    filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
-                    artifactPath = filesByGlob[0].path
+                    def pom = readMavenPom file: 'pom.xml'
+                    def artifact = findFiles(glob: "target/*.${pom.packaging}")[0].path
 
-                    if (fileExists(artifactPath)) {
+                    nexusArtifactUploader(
+                        nexusVersion: 'nexus3',
+                        protocol: 'http',
+                        nexusUrl: NEXUS_URL,
+                        repository: NEXUS_REPOSITORY,
+                        groupId: pom.groupId,
+                        version: pom.version,
+                        credentialsId: NEXUS_CREDENTIAL_ID,
+                        artifacts: [[artifactId: pom.artifactId, file: artifact, type: pom.packaging]]
+                    )
+                }
+            }
+        }
 
-                        nexusArtifactUploader(
-                            nexusVersion: NEXUS_VERSION,
-                            protocol: NEXUS_PROTOCOL,
-                            nexusUrl: NEXUS_URL,
-                            groupId: pom.groupId,
-                            version: pom.version,
-                            repository: NEXUS_REPOSITORY,
-                            credentialsId: NEXUS_CREDENTIAL_ID,
-                            artifacts: [
-                                [artifactId: pom.artifactId, classifier: '', file: artifactPath, type: pom.packaging],
-                                [artifactId: pom.artifactId, classifier: '', file: "pom.xml", type: "pom"]
-                            ]
-                        )
-                    } else {
-                        error "*** File not found: ${artifactPath}"
+        stage('Deployment') {
+            parallel {
+                stage('Deploy to Tomcat') {
+                    steps {
+                        withCredentials([usernamePassword(credentialsId: 'tomcat-credits', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
+                            sh """
+                                curl -u $TOMCAT_USER:$TOMCAT_PASS -T target/*.war \
+                                "http://54.145.50.157:8080/manager/text/deploy?path=/krsna-app&update=true"
+                            """
+                        }
                     }
                 }
             }
         }
 
-        stage("Deploy to Tomcat") {
+        stage('Notifications') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'tomcat-credits', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
-                    script {
-                        def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
-                        echo "Deploying ${warFile} to Tomcat at context path /krsna-app ..."
-
-                        sh """
-                            curl -u $TOMCAT_USER:$TOMCAT_PASS \
-                                 -T ${warFile} \
-                                 "http://54.145.50.157:8080/manager/text/deploy?path=/krsna-app&update=true"
-                        """
-                    }
-                }
+                slackSend(channel: SLACK_CHANNEL, color: "#36a64f", message: "✅ Pipeline completed successfully!")
             }
         }
+    }
 
-        stage("Slack Notification") {
-            steps {
-                slackSend(
-                    channel: "${SLACK_CHANNEL}",
-                    color: "#36a64f",
-                    message: "✅ Jenkins Declarative Pipeline deployed successfully to Tomcat! Job: ${env.JOB_NAME} [${env.BUILD_NUMBER}]"
-                )
-            }
+    post {
+        failure {
+            slackSend(channel: SLACK_CHANNEL, color: "#FF0000", message: "❌ Pipeline failed!")
         }
     }
 }
