@@ -52,7 +52,8 @@ pipeline {
                     filesByGlob = findFiles(glob: "target/*.${pom.packaging}")
                     artifactPath = filesByGlob[0].path
 
-                    if (fileExists artifactPath) {
+                    if (fileExists(artifactPath)) {
+
                         nexusArtifactUploader(
                             nexusVersion: NEXUS_VERSION,
                             protocol: NEXUS_PROTOCOL,
