@@ -9,9 +9,9 @@ pipeline {
         // Nexus details
         NEXUS_VERSION     = "nexus3"
         NEXUS_PROTOCOL    = "http"
-        NEXUS_URL         = "3.92.191.162:8081"
-        NEXUS_REPOSITORY  = "shiva-declarative"
-        NEXUS_CREDENTIAL_ID = "Nexus_server"
+        NEXUS_URL         = "54.237.142.141:8081"
+        NEXUS_REPOSITORY  = "krsna-declarative"
+        NEXUS_CREDENTIAL_ID = "nexus-credits"
 
         // SonarQube scanner tool
         SCANNER_HOME = tool 'sonar-scanner'
@@ -23,7 +23,7 @@ pipeline {
     stages {
         stage("Clone Code") {
             steps {
-                git branch: 'main', url: 'https://github.com/kothapalli1094/shiva-app.git'
+                git branch: 'main', url: 'https://github.com/krsna-carino/krsna-app.git'
             }
         }
 
@@ -37,8 +37,8 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''$SCANNER_HOME/bin/sonar-scanner \
-                        -Dsonar.projectKey=shiva-app \
-                        -Dsonar.projectName="shiva-app" \
+                        -Dsonar.projectKey=krsna-app \
+                        -Dsonar.projectName="krsna-app" \
                         -Dsonar.projectVersion=1.0 \
                         -Dsonar.sources=src/main/java \
                         -Dsonar.java.binaries=target/classes '''
@@ -78,7 +78,7 @@ pipeline {
 
         stage("Deploy to Tomcat") {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'tomcat_credentials', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
+                withCredentials([usernamePassword(credentialsId: 'tomcat-credits', usernameVariable: 'TOMCAT_USER', passwordVariable: 'TOMCAT_PASS')]) {
                     script {
                         // WAR file built by Maven
                         def warFile = sh(script: "ls target/*.war | head -n 1", returnStdout: true).trim()
